@@ -14,4 +14,13 @@ createdb:
 dropdb:
 	docker exec -it postgres15 dropdb --username=postgres sle
 
-.PHONY: posgresinit postgres createdb dropdb
+createmigration:
+	migrate create -ext sql -dir database/migrations your_table_name
+
+migrateup:
+	migrate -path database/migrations -database "postgresql://postgres:password@localhost:5432/sle?sslmode=disable" -verbose up
+
+migratedown:
+	migrate -path database/migrations -database "postgresql://postgres:password@localhost:5432/sle?sslmode=disable" -verbose down
+
+.PHONY: posgresinit postgres createdb dropdb migrateup migratedown

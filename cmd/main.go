@@ -17,12 +17,13 @@ func main() {
 	}
 
 	// initialize database
-	_, err := database.NewDatabase()
+	db, err := database.NewDatabase()
 	if err != nil {
 		log.Println("failed to connect database", err.Error())
 		return
 	}
 
-	config.Configuration()
+	config.Configuration(db.GetDB())
 	config.RunServer(":8080")
+	// defer db.CloseDB()
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -22,15 +23,28 @@ func NewDatabase() (*Database, error) {
 	sslmode := os.Getenv("DB_SSLMODE")
 
 	dbURL := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s", username, password, host, port, dbname, sslmode)
-	dbpool, err := pgxpool.New(context.Background(), dbURL)
+
+	dbPoolConfig, err := pgxpool.ParseConfig(dbURL)
 	if err != nil {
 		return nil, errors.New("error during opening the database")
 	}
-	defer dbpool.Close()
 
-	if err := dbpool.Ping(context.Background()); err != nil {
+	db, err := pgxpool.NewWithConfig(context.Background(), dbPoolConfig)
+	if err != nil {
+		log.Fatalln("Unable to create connection pool:", err)
+	}
+
+	if err := db.Ping(context.Background()); err != nil {
 		return nil, err
 	}
 
-	return &Database{db: dbpool}, nil
+	return &Database{db: db}, nil
+}
+
+func (d *Database) GetDB() *pgxpool.Pool {
+	return d.db
+}
+
+func (d *Database) CloseDB() {
+	d.db.Close()
 }
