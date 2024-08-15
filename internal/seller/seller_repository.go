@@ -23,8 +23,6 @@ func (r *repository) SellerSignup(ctx context.Context, seller *Seller) (*Seller,
 	VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) 
 	RETURNING s_id,created_at,updated_at`
 
-	log.Println(seller.First_Name)
-
 	err := r.db.QueryRow(ctx, query, seller.First_Name, seller.Last_Name, seller.Email, seller.Password, seller.Image_URL, seller.Address, seller.Phone, seller.PAN_Card, seller.DOB, seller.Company_Name, seller.Description, seller.GST_Number).Scan(&seller.ID, &seller.Created_at, &seller.Updated_at)
 	if err != nil {
 		return nil, err

@@ -34,6 +34,12 @@ func ValidateEmail(email string) bool {
 	return re.MatchString(email)
 }
 
+func ValidateURL(url string) bool {
+	urlRegex := `^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$`
+	re := regexp.MustCompile(urlRegex)
+	return re.MatchString(url)
+}
+
 func ValidatePANCard(pan string) bool {
 	panRegex := `^[A-Z]{5}[0-9]{4}[A-Z]{1}$`
 	re := regexp.MustCompile(panRegex)

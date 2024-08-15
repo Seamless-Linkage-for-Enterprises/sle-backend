@@ -2,13 +2,12 @@ package seller
 
 import (
 	"context"
+	"errors"
 	"log"
 	"sle/helpers"
 	"sle/service/email"
 	"time"
 )
-
-var emailObj email.Repository
 
 type service struct {
 	Repository
@@ -24,15 +23,17 @@ func (s *service) SellerSignup(ctx context.Context, req CreateSellerReq) (*Selle
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
-	// TODO : hash password
-
-	// TODO : image url
+	//  hash password
+	hashPassword, err := helpers.HashPassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
 
 	seller := Seller{
 		First_Name:   req.First_Name,
 		Last_Name:    req.Last_Name,
 		Email:        req.Email,
-		Password:     req.Password,
+		Password:     hashPassword,
 		Image_URL:    req.Image_URL,
 		Address:      req.Address,
 		Phone:        req.Phone,
@@ -87,6 +88,11 @@ func (s *service) SellerLogin(ctx context.Context, req SellerLoginReq) (*Seller,
 	seller, err := s.Repository.GetSellerByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, err
+	}
+
+	_, err = helpers.VerifyPassword(req.Password, seller.Password)
+	if err != nil {
+		return nil, errors.New("password was wrong")
 	}
 
 	return seller, nil

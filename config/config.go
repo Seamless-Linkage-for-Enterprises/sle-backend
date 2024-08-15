@@ -11,7 +11,7 @@ import (
 
 var r = gin.Default()
 
-func Configuration(db *pgxpool.Pool) {
+func Configuration(db *pgxpool.Pool) email.Handler {
 
 	emailRepo := email.NewEmailRespository(db)
 	emailServ := email.NewEmailService(emailRepo)
@@ -23,6 +23,8 @@ func Configuration(db *pgxpool.Pool) {
 	sellerHand := seller.NewSellerHandler(sellerServ)
 
 	routes.SetupRoutes(r, sellerHand, &emailHand)
+
+	return emailHand
 }
 
 func RunServer(listenAddr string) {

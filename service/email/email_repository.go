@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/smtp"
 	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/resend/resend-go/v2"
 )
 
 type repository struct {
@@ -36,22 +36,18 @@ func (r *repository) Generateotp(first_name, last_name, email, s_id string) erro
 
 	// add into the database
 	if err := r.db.QueryRow(context.Background(), query, s_id, email, otp, expires_at).Scan(&id); err != nil {
-		log.Println("1")
 		return err
 	}
 
 	if id <= 0 {
-		log.Println("2")
 		return errors.New("can't add otp")
 	}
 
 	// send email
-	if err := sendMail(first_name, last_name, otp, email); err != nil {
-		log.Println("3")
+	if err := sendEmail(first_name, last_name, otp, email); err != nil {
 		log.Println("Failed to send email ", email, " ", err.Error())
 	}
 
-	log.Println("4")
 	return nil
 }
 
@@ -61,12 +57,13 @@ func (r *repository) VerifyOTP(otp, email string) error {
 
 	// get otp details
 	query := `
-	SELECT (s_id,otp,email,expiry_at) FROM otp_verification 
+	SELECT s_id,otp,email,expires_at FROM otp_verification 
 	WHERE email=$1 AND otp=$2
 	`
-	err := r.db.QueryRow(context.Background(), query, email, otp).Scan(&rotp.SID, &rotp.OTP, &rotp.Expires_at)
+	err := r.db.QueryRow(context.Background(), query, email, otp).Scan(&rotp.SID, &rotp.OTP, &rotp.Email, &rotp.Expires_at)
 	if err != nil {
-		return err
+		log.Println("Error", err.Error())
+		return errors.New("wrong otp")
 	}
 
 	// check otp expiry
@@ -89,17 +86,22 @@ func getOTP() string {
 	return fmt.Sprintf("%06d", otp)
 }
 
-func sendMail(first_name, last_name, otp, userEmail string) error {
-	var RESEND_API_KEY = os.Getenv("RESEND_API_KEY")
+func sendEmail(first_name, last_name, otp, userEmail string) error {
 
-	client := resend.NewClient(RESEND_API_KEY)
+	// Define the sender, recipient, and SMTP server information
+	from := os.Getenv("EMAIL_ADDRESS")
+	password := os.Getenv("EMAIL_PASSWORD")
 
-	params := &resend.SendEmailRequest{
-		From:    "onboarding@resend.dev",
-		To:      []string{userEmail},
-		Subject: "Email verification",
-		Html: `
-		<!DOCTYPE html>
+	to := []string{userEmail}
+
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+
+	// Create the message
+	subject := "Subject: Email verification\n"
+	headers := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+	body := `
+	<!DOCTYPE html>
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
@@ -153,7 +155,7 @@ func sendMail(first_name, last_name, otp, userEmail string) error {
 					<td align="center" valign="top">
 					<div class="container" style="background-color: #f9f9f9;">
 								<h1>Verify Email Address</h1>
-								<p>` + first_name + `" "` + last_name + ` , Thank you for becoming a part of Seamless Linkage of Enterprise!</p>
+								<p>` + first_name + ` ` + last_name + `, Thank you for becoming a part of Seamless Linkage of Enterprise!</p>
 								<p class="instructions">If you did not sign up with us, please ignore this email.</p>
 								<hr>
 								  <p class="instructions"><h3>` + otp + `</h3></p>
@@ -166,16 +168,56 @@ func sendMail(first_name, last_name, otp, userEmail string) error {
 				</table>
 			</body>
 			</html>
-			`,
-	}
-	log.Println("RESEND 1")
+	`
 
-	_, err := client.Emails.Send(params)
+	message := []byte(subject + headers + body)
+
+	// Authenticate with the SMTP server
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	// Send the email
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, message)
 	if err != nil {
-		log.Println("RESEND 2")
+		log.Println("Failed to send email:", err)
 		return err
 	}
 
-	log.Println("RESEND 3")
 	return nil
+}
+
+func (r *repository) UpdateIsEmailUpdated(email string) error {
+	query := `
+	UPDATE sellers
+	SET is_email_verified=$1
+	WHERE s_email=$2
+	`
+
+	commandTag, err := r.db.Exec(context.Background(), query, true, email)
+	if err != nil {
+		return errors.New("failed to update is_email_verified:" + err.Error())
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return errors.New("now rows were updated")
+	}
+
+	return nil
+}
+
+func (r *repository) DeleteExpiredOTPs() error {
+	query := `
+	DELETE FROM otp_verification
+	WHERE expires_at < $1
+	`
+	currentTime := time.Now().Local().Unix()
+	commandTag, err := r.db.Exec(context.Background(), query, currentTime)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return errors.New("expired otps weren't deleted")
+	}
+
+	return errors.New("expired email were deleted")
 }
