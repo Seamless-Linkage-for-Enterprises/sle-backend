@@ -30,7 +30,7 @@ func main() {
 			if err := emailHand.DeleteOTPs(); err != nil {
 				log.Println(err.Error())
 			}
-			time.Sleep(30 * time.Second)
+			time.Sleep(1 * time.Hour)
 		}
 	}()
 	config.RunServer(":8080")

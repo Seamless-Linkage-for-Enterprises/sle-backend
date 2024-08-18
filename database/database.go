@@ -21,8 +21,9 @@ func NewDatabase() (*Database, error) {
 	port := os.Getenv("DB_PORT")
 	dbname := os.Getenv("DB_NAME")
 	sslmode := os.Getenv("DB_SSLMODE")
-
+	log.Println(username)
 	dbURL := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s", username, password, host, port, dbname, sslmode)
+	// dbURL := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s", "postgres", "password", "localhost", "5432", "sle", "disable")
 
 	dbPoolConfig, err := pgxpool.ParseConfig(dbURL)
 	if err != nil {
