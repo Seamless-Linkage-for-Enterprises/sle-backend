@@ -5,17 +5,15 @@ import (
 	"sle/config"
 	"sle/database"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	// load .env file
-	if err := godotenv.Load(); err != nil {
-		log.Println(err.Error())
-		return
-	}
+	// load .env file only for dev mode
+	// if err := godotenv.Load(); err != nil {
+	// 	log.Println(err.Error())
+	// 	return
+	// }
 
 	// initialize database
 	db, err := database.NewDatabase()
