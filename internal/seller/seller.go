@@ -80,6 +80,7 @@ type Repository interface {
 	GetSellerByID(ctx context.Context, sid string) (*Seller, error)
 	GetAllSellers(ctx context.Context, page int, recordPerPage int) (*[]Seller, error)
 	SellerForgetPassword(ctx context.Context, email, password string) error
+	DeleteSeller(ctx context.Context, id string) error
 }
 
 type Service interface {
@@ -88,4 +89,5 @@ type Service interface {
 	GetSellerByID(ctx context.Context, sid string) (*Seller, error)
 	GetAllSellers(ctx context.Context, page int, recordPerPage int) (*[]Seller, error)
 	SellerForgetPassword(ctx context.Context, req SellerForgetPasswordReq) error
+	DeleteSeller(id string) error
 }

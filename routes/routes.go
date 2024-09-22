@@ -21,4 +21,5 @@ func SetupRoutes(r *gin.Engine, seller *seller.Handler, email *email.Handler) {
 	r.GET("/sellers/:sid", api.MakeHTTPHandleFunc(seller.GetSellerByID))
 	r.GET("/sellers", api.MakeHTTPHandleFunc(seller.GetAllSellers))
 	r.PATCH("/sellers", api.MakeHTTPHandleFunc(seller.SellerForgetPassword))
+	r.DELETE("/sellers/:sid", api.MakeHTTPHandleFunc(seller.DeleteSeller))
 }

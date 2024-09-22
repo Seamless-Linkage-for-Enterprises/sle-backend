@@ -32,7 +32,8 @@ func (r *repository) SellerSignup(ctx context.Context, seller *Seller) (*Seller,
 		return nil, errors.New("failed to insert record")
 	}
 
-	seller.Is_Verified = false // initialy it is false
+	seller.Is_Verified = true // initialy it is false
+	seller.Is_Email_Verified = true
 	seller.Password = ""
 	return seller, nil
 }
@@ -178,5 +179,17 @@ func (r *repository) SellerForgetPassword(ctx context.Context, email, password s
 		return err
 	}
 
+	return nil
+}
+
+func (r *repository) DeleteSeller(ctx context.Context, id string) error {
+	query := `
+	DELETE FROM sellers WHERE s_id=$1
+	`
+
+	_, err := r.db.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
 	return nil
 }

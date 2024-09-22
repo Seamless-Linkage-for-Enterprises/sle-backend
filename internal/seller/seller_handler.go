@@ -132,6 +132,16 @@ func (h *Handler) SellerForgetPassword(c *gin.Context) (int, error) {
 	return api.WriteMessage(c, "password was updated.")
 }
 
+func (h *Handler) DeleteSeller(c *gin.Context) (int, error) {
+	id := c.Param("sid")
+
+	if err := h.Service.DeleteSeller(id); err != nil {
+		return http.StatusNotFound, err
+	}
+
+	return api.WriteMessage(c, "Seller deleted.")
+}
+
 func validateSignUpDetails(s *CreateSellerReq) (string, bool) {
 	var errors []string
 

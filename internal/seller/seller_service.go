@@ -23,25 +23,21 @@ func (s *service) SellerSignup(ctx context.Context, req CreateSellerReq) (*Selle
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
-	//  hash password
-	hashPassword, err := helpers.HashPassword(req.Password)
-	if err != nil {
-		return nil, err
-	}
-
 	seller := Seller{
-		First_Name:   req.First_Name,
-		Last_Name:    req.Last_Name,
-		Email:        req.Email,
-		Password:     hashPassword,
-		Image_URL:    req.Image_URL,
-		Address:      req.Address,
-		Phone:        req.Phone,
-		PAN_Card:     req.PAN_Card,
-		DOB:          req.DOB,
-		Description:  req.Description,
-		GST_Number:   req.GST_Number,
-		Company_Name: req.Company_Name,
+		First_Name:        req.First_Name,
+		Last_Name:         req.Last_Name,
+		Email:             req.Email,
+		Password:          req.Password,
+		Image_URL:         req.Image_URL,
+		Address:           req.Address,
+		Phone:             req.Phone,
+		PAN_Card:          req.PAN_Card,
+		DOB:               req.DOB,
+		Description:       req.Description,
+		GST_Number:        req.GST_Number,
+		Company_Name:      req.Company_Name,
+		Is_Verified:       true,
+		Is_Email_Verified: true,
 	}
 
 	res, err := s.Repository.SellerSignup(ctx, &seller)
@@ -49,10 +45,10 @@ func (s *service) SellerSignup(ctx context.Context, req CreateSellerReq) (*Selle
 		return nil, err
 	}
 
-	// generate otp
-	if err := s.emailRepo.Generateotp(res.First_Name, res.Last_Name, res.Email, res.ID); err != nil {
-		log.Println("Failed to send otp", err.Error())
-	}
+	// // generate otp
+	// if err := s.emailRepo.Generateotp(res.First_Name, res.Last_Name, res.Email, res.ID); err != nil {
+	// 	log.Println("Failed to send otp", err.Error())
+	// }
 
 	return res, nil
 }
@@ -91,6 +87,7 @@ func (s *service) SellerLogin(ctx context.Context, req SellerLoginReq) (*Seller,
 	}
 
 	_, err = helpers.VerifyPassword(req.Password, seller.Password)
+	log.Println(req.Password, seller.Password)
 	if err != nil {
 		return nil, errors.New("password was wrong")
 	}
@@ -113,4 +110,11 @@ func (s *service) SellerForgetPassword(ctx context.Context, req SellerForgetPass
 	}
 
 	return nil
+}
+
+func (s *service) DeleteSeller(id string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), s.timeout)
+	defer cancel()
+
+	return s.Repository.DeleteSeller(ctx, id)
 }

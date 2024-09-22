@@ -13,8 +13,8 @@ CREATE TABLE sellers (
     "s_dob" DATE NOT NULL,
     "s_company_name" VARCHAR(20) ,
     "s_description" VARCHAR(256) NOT NULL,
-    "is_verified" BOOLEAN DEFAULT FALSE NOT NULL,
-    "is_email_verified" BOOLEAN DEFAULT FALSE NOT NULL,
+    "is_verified" BOOLEAN DEFAULT TRUE NOT NULL,
+    "is_email_verified" BOOLEAN DEFAULT TRUE NOT NULL,
     "s_gst_number" VARCHAR(15) ,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
