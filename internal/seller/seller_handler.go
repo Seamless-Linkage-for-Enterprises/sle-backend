@@ -162,7 +162,7 @@ func validateSignUpDetails(s *CreateSellerReq) (string, bool) {
 		errors = append(errors, str)
 	}
 
-	if !utils.ValidateURL(s.Image_URL) {
+	if s.Image_URL == "" {
 		errors = append(errors, "image_url required")
 	}
 
