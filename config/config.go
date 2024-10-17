@@ -2,6 +2,7 @@ package config
 
 import (
 	"sle/internal/buyer"
+	"sle/internal/product"
 	"sle/internal/seller"
 	"sle/routes"
 	"sle/service/email"
@@ -27,7 +28,13 @@ func Configuration(db *pgxpool.Pool) email.Handler {
 	buyerRepo := buyer.NewBuyerRepository(db)
 	buyerServ := buyer.NewBuyerService(buyerRepo)
 	buyerHand := buyer.NewBuyerHandler(buyerServ)
-	routes.SetupRoutes(r, buyerHand, sellerHand, &emailHand)
+
+	// initialize product
+	productRepo := product.NewProductRepository(db)
+	productServ := product.NewProductService(productRepo)
+	productHand := product.NewProductHandler(productServ)
+
+	routes.SetupRoutes(r, buyerHand, sellerHand, productHand, &emailHand)
 
 	return emailHand
 }
