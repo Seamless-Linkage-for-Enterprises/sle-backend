@@ -1,6 +1,7 @@
 package config
 
 import (
+	"sle/internal/bookmark"
 	"sle/internal/buyer"
 	"sle/internal/product"
 	"sle/internal/seller"
@@ -34,7 +35,12 @@ func Configuration(db *pgxpool.Pool) email.Handler {
 	productServ := product.NewProductService(productRepo)
 	productHand := product.NewProductHandler(productServ)
 
-	routes.SetupRoutes(r, buyerHand, sellerHand, productHand, &emailHand)
+	// initialize bookmark
+	bookmarkRepo := bookmark.NewBookmarkRepository(db)
+	bookmarkServ := bookmark.NewBookmarkService(bookmarkRepo)
+	bookmarkHand := bookmark.NewBookmarkHandler(bookmarkServ)
+
+	routes.SetupRoutes(r, buyerHand, sellerHand, productHand, bookmarkHand, &emailHand)
 
 	return emailHand
 }

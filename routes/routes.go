@@ -2,6 +2,7 @@ package routes
 
 import (
 	api "sle/internal"
+	"sle/internal/bookmark"
 	"sle/internal/buyer"
 	"sle/internal/product"
 	"sle/internal/seller"
@@ -10,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, buyer *buyer.Handler, seller *seller.Handler, product *product.Handler, email *email.Handler) {
+func SetupRoutes(r *gin.Engine, buyer *buyer.Handler, seller *seller.Handler, product *product.Handler, bookmark *bookmark.Handler, email *email.Handler) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "OK"})
 	})
@@ -55,4 +56,9 @@ func SetupRoutes(r *gin.Engine, buyer *buyer.Handler, seller *seller.Handler, pr
 	r.PATCH("/products/:pid", api.MakeHTTPHandleFunc(product.UpdateStatus))
 	r.GET("/products/search/:str", api.MakeHTTPHandleFunc(product.SearchProduct))
 
+	// bookmark routes
+	// add bookmark
+	r.GET("bookmarks/:pid/:bid", api.MakeHTTPHandleFunc(bookmark.CreateBookmark)) // product id and buyer id
+	r.GET("bookmarks/all/:bid", api.MakeHTTPHandleFunc(bookmark.GetAllBookmarks))
+	r.DELETE("bookmarks/:bookmarkid", api.MakeHTTPHandleFunc(bookmark.DeleteBookmark))
 }
