@@ -4,7 +4,6 @@ import (
 	"log"
 	"sle/config"
 	"sle/database"
-	"time"
 )
 
 func main() {
@@ -22,15 +21,7 @@ func main() {
 		return
 	}
 
-	emailHand := config.Configuration(db.GetDB())
-	go func() {
-		for {
-			if err := emailHand.DeleteOTPs(); err != nil {
-				log.Println(err.Error())
-			}
-			time.Sleep(1 * time.Hour)
-		}
-	}()
+	config.Configuration(db.GetDB())
 	config.RunServer(":8080")
 	// defer db.CloseDB()
 }

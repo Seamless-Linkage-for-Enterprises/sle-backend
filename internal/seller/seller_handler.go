@@ -2,6 +2,7 @@ package seller
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"sle/helpers"
 	api "sle/internal"
@@ -22,7 +23,7 @@ func NewSellerHandler(s Service) *Handler {
 
 func (h *Handler) SellerSignup(c *gin.Context) (int, error) {
 	var req CreateSellerReq
-
+	log.Println(">>>")
 	if err := c.BindJSON(&req); err != nil {
 		return http.StatusBadRequest, err
 	}

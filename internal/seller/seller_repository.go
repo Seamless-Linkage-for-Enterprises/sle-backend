@@ -22,15 +22,18 @@ func (r *repository) SellerSignup(ctx context.Context, seller *Seller) (*Seller,
 	query := `INSERT INTO sellers (s_first_name,s_last_name,s_email,s_password,s_image_url,s_address,s_phone,s_pan_card,s_dob,s_company_name,s_description,s_gst_number) 
 	VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) 
 	RETURNING s_id,created_at,updated_at`
-
+	log.Println(1)
 	err := r.db.QueryRow(ctx, query, seller.First_Name, seller.Last_Name, seller.Email, seller.Password, seller.Image_URL, seller.Address, seller.Phone, seller.PAN_Card, seller.DOB, seller.Company_Name, seller.Description, seller.GST_Number).Scan(&seller.ID, &seller.Created_at, &seller.Updated_at)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
+	log.Println(2)
 
 	if seller.ID == "" {
 		return nil, errors.New("failed to insert record")
 	}
+	log.Println(3)
 
 	seller.Is_Verified = true // initialy it is false
 	seller.Is_Email_Verified = true
