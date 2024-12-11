@@ -62,6 +62,17 @@ func (h *Handler) GetBuyerByID(c *gin.Context) (int, error) {
 	return api.WriteData(c, buyer)
 }
 
+func (h *Handler) GetBuyerByPhone(c *gin.Context) (int, error) {
+	phone := c.Param("pid")
+
+	buyer, err := h.Service.GetBuyerByPhone(c.Request.Context(), phone)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	return api.WriteData(c, buyer)
+}
+
 func (h *Handler) GetAllBuyers(c *gin.Context) (int, error) {
 	page, errP := strconv.Atoi(c.Query("page"))
 	recordPerPage, errO := strconv.Atoi(c.Query("recordPerPage"))

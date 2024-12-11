@@ -66,11 +66,9 @@ FROM
 JOIN 
     sellers s ON p.s_id = s.s_id
 ORDER BY p.created_at DESC
-OFFSET $1 
-LIMIT $2
 	`
 	var products []ProductRes
-	row, err := r.db.Query(ctx, query, offset, recordPerPage)
+	row, err := r.db.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +227,7 @@ func (r *repository) UpdateStatus(ctx context.Context, pid string) error {
 
 // * search product by product name
 func (r *repository) SearchProduct(ctx context.Context, str string, page int, recordPerPage int) (*[]ProductRes, error) {
-	offset := (page - 1) * recordPerPage
+
 	query := `
 SELECT 
     p.p_id,
@@ -253,13 +251,12 @@ JOIN
     sellers s ON p.s_id = s.s_id
 WHERE 
     p.p_name ILIKE '%' || $1 || '%' -- ILIKE for case-insensitive search
+	OR p.p_description ILIKE '%' || $1 || '%' -- Search in product description
 ORDER BY p.created_at DESC
-OFFSET $2
-LIMIT $3;
 	`
 
 	var products []ProductRes
-	row, err := r.db.Query(ctx, query, str, offset, recordPerPage)
+	row, err := r.db.Query(ctx, query, str)
 	if err != nil {
 		return nil, err
 	}

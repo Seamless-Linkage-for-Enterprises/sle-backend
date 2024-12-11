@@ -35,6 +35,7 @@ func SetupRoutes(r *gin.Engine, buyer *buyer.Handler, seller *seller.Handler, pr
 	r.GET("/buyers", api.MakeHTTPHandleFunc(buyer.GetAllBuyers))
 	// get a buyer by phone number
 	r.GET("/buyers/:bid", api.MakeHTTPHandleFunc(buyer.GetBuyerByID))
+	r.GET("/buyers/phone/:pid", api.MakeHTTPHandleFunc(buyer.GetBuyerByPhone))
 	// update buyer details
 	r.PATCH("/buyers", api.MakeHTTPHandleFunc(buyer.BuyerForgetPassword))
 	// delete buyer

@@ -76,6 +76,7 @@ type Service interface {
 	BuyerSignup(ctx context.Context, req CreateBuyerReq) (*Buyer, error)
 	BuyerLogin(ctx context.Context, req BuyerLoginReq) (*Buyer, error)
 	GetBuyerByID(ctx context.Context, sid string) (*Buyer, error)
+	GetBuyerByPhone(ctx context.Context, phone string) (*Buyer, error)
 	GetAllBuyers(ctx context.Context, page int, recordPerPage int) (*[]Buyer, error)
 	BuyerForgetPassword(ctx context.Context, req BuyerForgetPasswordReq) error
 	DeleteBuyer(ctx context.Context, id string) error
